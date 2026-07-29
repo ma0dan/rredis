@@ -7,8 +7,11 @@ def handle_command(args):
     if cmd == "PING":
         # TODO: Return +PONG\r\n for no args
         # TODO: Return bulk string for PING <message>
-        pass
-
+        if len(args) == 1:
+            return "+PONG\r\n"
+        else:
+            msg = " ".join(args[1:])
+            return f"${len(msg)}\r\n{msg}\r\n"
     return "-ERR unknown command\r\n"
 
 def main():
