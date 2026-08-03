@@ -1,29 +1,47 @@
 import sys
 
 
-def bulk_string(args):
-    body = ' '.join(args)
-    length = len(body)
-    return f"${length}\r\n{body}\r\n"
+def simple_string(s):
+    return f"+{s}\r\n"
+
+def error(msg):
+    return f"-{msg}\r\n"
+
+def integer(n):
+    return f":{n}\r\n"
+
+def bulk_string(s):
+    if s is None:
+        return "$-1\r\n"
+    return f"${len(s)}\r\n{s}\r\n"
+
 
 def cmd_ping(args):
     """Process a Redis command and return the RESP response."""
-    if args:
-        return bulk_string(args)
+    s = ' '.join(args)
+    if s:
+        return bulk_string(s)
     return "+PONG\r\n"
 
 def cmd_echo(args):
-    if args:
-        return bulk_string(args)
+    s = ' '.join(args)
+    return bulk_string(s)
 
-HANDLERS = {'PING': cmd_ping, 'ECHO': cmd_echo}
+def cmd_commnad(args):
+    s = ' '.join(args)
+    if s.upper() == 'DOCS':
+        return simple_string("OK")
+    return error(f"ERR unknown command COMMAND")
+
+
+HANDLERS = {'PING': cmd_ping, 'ECHO': cmd_echo, 'COMMAND': cmd_commnad}
 
 def handle_command(args):
     cmd = args[0].upper()
     handler = HANDLERS.get(cmd)
     if handler:
         return handler(args[1:])
-    return "-ERR unknown command\r\n"
+    return error(f"ERR unknown command '{cmd}'")
 
 
 def main():
