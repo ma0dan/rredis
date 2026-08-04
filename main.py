@@ -33,14 +33,26 @@ def cmd_commnad(args):
         return simple_string("OK")
     return error(f"ERR unknown command COMMAND")
 
+ARITY = {
+    "PING": (0, 1),
+    "ECHO": (1, 1),
+    "COMMAND": (1, 2)
+}
 
 HANDLERS = {'PING': cmd_ping, 'ECHO': cmd_echo, 'COMMAND': cmd_commnad}
+
+def check_artiy(cmd, args):
+    lo, hi = ARITY[cmd]
+    if not (lo <= len(args) <= hi):
+        return error(f"ERR wrong number of arguments for '{cmd.upper()}' command")
+    return None
 
 def handle_command(args):
     cmd = args[0].upper()
     handler = HANDLERS.get(cmd)
     if handler:
-        return handler(args[1:])
+        err = check_artiy(cmd, args[1:])
+        return err if err else handler(args[1:])
     return error(f"ERR unknown command '{cmd}'")
 
 
